@@ -1,0 +1,149 @@
+<!-- pages/edit/edit.wxml - 新增/编辑凭证 -->
+<view class="edit-page">
+
+  <!-- 表单卡片 -->
+  <view class="form-card">
+
+    <!-- 标题 -->
+    <view class="form-group">
+      <view class="form-label">
+        <text class="label-required">*</text> 标题
+      </view>
+      <input
+        class="form-input"
+        placeholder="例如：GitHub、企业邮箱、百度账号"
+        placeholder-class="input-placeholder"
+        value="{{form.title}}"
+        bindinput="onFieldChange"
+        data-field="title"
+        maxlength="30"
+      />
+    </view>
+
+    <!-- 用户名 -->
+    <view class="form-group">
+      <view class="form-label">
+        <text class="label-required">*</text> 账号名
+      </view>
+      <input
+        class="form-input"
+        placeholder="邮箱、手机号或用户名"
+        placeholder-class="input-placeholder"
+        value="{{form.username}}"
+        bindinput="onFieldChange"
+        data-field="username"
+        maxlength="100"
+      />
+    </view>
+
+    <!-- 密码 -->
+    <view class="form-group">
+      <view class="form-label">
+        <text class="label-required">*</text> 密码
+      </view>
+      <view class="password-input-row">
+        <input
+          class="form-input password-input"
+          type="text"
+          password="{{!showPassword}}"
+          placeholder="输入或生成密码"
+          placeholder-class="input-placeholder"
+          value="{{form.password}}"
+          bindinput="onFieldChange"
+          data-field="password"
+          maxlength="128"
+        />
+        <view class="pwd-eye-toggle" bindtap="togglePassword">
+          <text>{{showPassword ? '🙈' : '👁'}}</text>
+        </view>
+        <view class="pwd-generate" bindtap="generatePassword">
+          <text>🎲</text>
+        </view>
+      </view>
+
+      <!-- 密码强度指示 -->
+      <view class="password-strength" wx:if="{{form.password}}">
+        <view class="strength-bar">
+          <view class="strength-fill" style="width: {{passwordStrength * 25}}%; background: {{strengthColor}};"></view>
+        </view>
+        <text class="strength-label" style="color: {{strengthColor}};">{{strengthLabel}}</text>
+      </view>
+    </view>
+
+    <!-- 分类 -->
+    <view class="form-group">
+      <view class="form-label">分类</view>
+      <view class="category-selector">
+        <view
+          wx:for="{{categories}}"
+          wx:key="key"
+          class="category-chip {{form.category === item.key ? 'selected' : ''}}"
+          style="{{form.category === item.key ? 'background:' + categoryColors[item.key] + '; color:#fff; border-color:' + categoryColors[item.key] : ''}}"
+          bindtap="selectCategory"
+          data-key="{{item.key}}"
+        >
+          <text>{{item.icon}} {{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 网址 -->
+    <view class="form-group">
+      <view class="form-label">网址 <text class="label-optional">（可选）</text></view>
+      <input
+        class="form-input"
+        placeholder="https://example.com，不填可以直接留空"
+        placeholder-class="input-placeholder"
+        value="{{form.url}}"
+        bindinput="onFieldChange"
+        data-field="url"
+        maxlength="200"
+      />
+      <view class="field-hint" wx:if="{{form.url && form.url.length > 0}}">
+        <text>网址可以填任意内容，如"无"、域名或完整网址</text>
+      </view>
+    </view>
+
+    <!-- 图标 -->
+    <view class="form-group">
+      <view class="form-label">图标</view>
+      <view class="icon-selector">
+        <view
+          wx:for="{{icons}}"
+          wx:key="*this"
+          class="icon-chip {{form.icon === item ? 'selected' : ''}}"
+          bindtap="selectIcon"
+          data-icon="{{item}}"
+        >
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 备注 -->
+    <view class="form-group">
+      <view class="form-label">备注</view>
+      <textarea
+        class="form-textarea"
+        placeholder="附加信息（可选）"
+        placeholder-class="input-placeholder"
+        value="{{form.notes}}"
+        bindinput="onFieldChange"
+        data-field="notes"
+        maxlength="500"
+        auto-height
+      />
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <view class="save-area">
+    <button class="btn-primary" bindtap="onSave" disabled="{{!canSave}}">
+      {{isEdit ? '保存修改' : '添加凭证'}}
+    </button>
+    <button class="btn-cancel" bindtap="onCancel" wx:if="{{isEdit}}">
+      取消
+    </button>
+  </view>
+
+</view>

@@ -1,0 +1,18 @@
+{
+  "pages": [
+    "pages/unlock/unlock",
+    "pages/index/index",
+    "pages/detail/detail",
+    "pages/edit/edit",
+    "pages/settings/settings"
+  ],
+  "window": {
+    "backgroundColor": "#F1EFE8",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "密锁",
+    "navigationBarTextStyle": "black"
+  },
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}

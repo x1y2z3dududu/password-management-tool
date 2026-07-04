@@ -1,0 +1,196 @@
+/* pages/edit/edit.wxss - 编辑页样式 */
+
+.edit-page {
+  min-height: 100vh;
+  background: var(--color-page-bg);
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ===== 表单卡片 ===== */
+.form-card {
+  background: var(--color-card-bg);
+  border-radius: var(--radius-md);
+  margin: var(--space-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-group {
+  margin-bottom: var(--space-lg);
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.label-required {
+  color: var(--color-danger);
+  margin-right: 2rpx;
+}
+
+.label-optional {
+  font-size: var(--font-xs, 22rpx);
+  font-weight: 400;
+  color: var(--color-text-hint);
+  margin-left: 4rpx;
+}
+
+.field-hint {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--color-text-hint);
+  line-height: 1.4;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  background: var(--color-page-bg);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-md);
+  font-size: var(--font-md);
+  color: var(--color-text-primary);
+  box-sizing: border-box;
+}
+
+.input-placeholder {
+  color: var(--color-text-hint);
+}
+
+/* 密码输入行 */
+.password-input-row {
+  display: flex;
+  align-items: center;
+  background: var(--color-page-bg);
+  border-radius: var(--radius-sm);
+}
+
+.password-input {
+  flex: 1;
+  background: transparent;
+}
+
+.pwd-eye-toggle,
+.pwd-generate {
+  width: 64rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-lg);
+}
+.pwd-eye-toggle:active,
+.pwd-generate:active {
+  opacity: 0.6;
+}
+
+/* 密码强度 */
+.password-strength {
+  display: flex;
+  align-items: center;
+  margin-top: var(--space-sm);
+}
+
+.strength-bar {
+  flex: 1;
+  height: 6rpx;
+  background: var(--color-divider);
+  border-radius: 3rpx;
+  overflow: hidden;
+  margin-right: var(--space-md);
+}
+
+.strength-fill {
+  height: 100%;
+  border-radius: 3rpx;
+  transition: width 0.3s, background 0.3s;
+}
+
+.strength-label {
+  font-size: var(--font-xs);
+  font-weight: 500;
+}
+
+/* 分类选择器 */
+.category-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.category-chip {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-full);
+  font-size: var(--font-sm);
+  background: var(--color-page-bg);
+  border: 2rpx solid var(--color-border);
+  color: var(--color-text-secondary);
+  transition: all 0.2s;
+}
+
+.category-chip.selected {
+  border-color: transparent;
+}
+
+/* 图标选择器 */
+.icon-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.icon-chip {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-xl);
+  background: var(--color-page-bg);
+  border-radius: var(--radius-md);
+  border: 2rpx solid transparent;
+}
+
+.icon-chip.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+/* 备注 */
+.form-textarea {
+  width: 100%;
+  min-height: 160rpx;
+  background: var(--color-page-bg);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  font-size: var(--font-md);
+  color: var(--color-text-primary);
+  box-sizing: border-box;
+}
+
+/* ===== 保存区 ===== */
+.save-area {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.btn-cancel {
+  height: 80rpx;
+  background: transparent;
+  color: var(--color-text-hint);
+  font-size: var(--font-md);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,148 @@
+<!-- pages/unlock/unlock.wxml - 解锁页 -->
+
+<!-- 隐私政策弹窗（首次进入） -->
+<view class="privacy-modal-overlay" wx:if="{{showPrivacyModal}}">
+  <view class="privacy-modal">
+    <view class="privacy-icon">🛡️</view>
+    <view class="privacy-title">欢迎使用密锁</view>
+    <view class="privacy-body">
+      <view class="privacy-summary">
+        密锁使用<text class="highlight">本地加密</text>存储你的账号密码，保护你的数据安全。请在使用前阅读并同意以下声明：
+      </view>
+      <view class="privacy-list">
+        <view class="privacy-item">
+          <text class="privacy-bullet">🔒</text>
+          <text>AES-256-GCM 军用级加密，数据仅存储在本地设备，永不上传任何服务器</text>
+        </view>
+        <view class="privacy-item">
+          <text class="privacy-bullet">🔑</text>
+          <text>主密码是你访问数据的唯一凭证，遗忘后无法恢复，请务必牢记</text>
+        </view>
+        <view class="privacy-item">
+          <text class="privacy-bullet">📋</text>
+          <text>不会收集你的个人信息，不请求通讯录、位置等敏感权限</text>
+        </view>
+        <view class="privacy-item">
+          <text class="privacy-bullet">🗑️</text>
+          <text>你可以随时导出加密备份或一键清空所有数据</text>
+        </view>
+      </view>
+    </view>
+    <view class="privacy-links" bindtap="viewPrivacyPolicy">
+      <text>查看完整隐私政策</text>
+    </view>
+    <view class="privacy-actions">
+      <button class="privacy-btn deny" bindtap="onRejectPrivacy">暂不同意</button>
+      <button class="privacy-btn accept" bindtap="onAcceptPrivacy">同意并继续</button>
+    </view>
+  </view>
+</view>
+
+<view class="unlock-page">
+  <!-- 顶部装饰区 -->
+  <view class="hero-area">
+    <!-- Logo 锁形图标 -->
+    <view class="logo-container">
+      <view class="logo-lock">
+        <view class="lock-body">
+          <view class="lock-keyhole">
+            <view class="keyhole-circle"></view>
+            <view class="keyhole-rect"></view>
+          </view>
+        </view>
+        <view class="lock-shackle"></view>
+      </view>
+    </view>
+
+    <!-- 应用名 -->
+    <view class="app-name">
+      <text class="app-name-mi">密</text>
+      <text class="app-name-suo">锁</text>
+    </view>
+    <view class="app-subtitle">安全存储你的每一个账号</view>
+  </view>
+
+  <!-- 密码输入区 -->
+  <view class="input-area">
+    <!-- 标题 -->
+    <view class="input-label" wx:if="{{!isFirstLaunch}}">
+      请输入主密码解锁
+    </view>
+    <view wx:else>
+      <view class="input-label">请设置你的主密码</view>
+      <view class="password-rules">
+        <view class="rule-item {{password.length >= 6 ? 'rule-pass' : 'rule-fail'}}">
+          <text class="rule-icon">{{password.length >= 6 ? '✓' : '○'}}</text>
+          <text>至少 6 位字符（当前 {{password.length}} 位）</text>
+        </view>
+        <view class="rule-item {{password.length <= 32 ? 'rule-pass' : 'rule-fail'}}">
+          <text class="rule-icon">{{password.length <= 32 ? '✓' : '○'}}</text>
+          <text>不超过 32 位</text>
+        </view>
+        <view class="rule-tip">建议混合字母 + 数字 + 符号，更安全</view>
+      </view>
+    </view>
+
+    <!-- 密码输入框 -->
+    <view class="password-input-row">
+      <input
+        class="password-input"
+        type="text"
+        password="{{!showPassword}}"
+        placeholder="{{isFirstLaunch ? '设置主密码' : '输入主密码'}}"
+        placeholder-class="input-placeholder"
+        value="{{password}}"
+        bindinput="onPasswordInput"
+        bindconfirm="onUnlock"
+        maxlength="32"
+        focus="{{inputFocus}}"
+      />
+      <view class="eye-toggle" bindtap="togglePassword">
+        <text>{{showPassword ? '🙈' : '👁'}}</text>
+      </view>
+    </view>
+
+    <!-- 错误提示 -->
+    <view class="error-message" wx:if="{{errorMsg}}">
+      <text>{{errorMsg}}</text>
+    </view>
+
+    <!-- 跨设备 / 数据异常时的重置入口 -->
+    <view class="reset-entry" wx:if="{{errorMsg && errorMsg.indexOf('重置') !== -1}}">
+      <view class="reset-divider"></view>
+      <view class="reset-btn" bindtap="resetAndStartFresh">
+        <text>🔄 重置本设备数据</text>
+      </view>
+      <view class="reset-hint">重置后可设置新主密码，再通过"导入备份"恢复数据</view>
+    </view>
+
+    <!-- 剩余尝试次数 -->
+    <view class="attempts-hint" wx:if="{{failedAttempts > 0 && !isFirstLaunch}}">
+      剩余尝试次数：{{maxAttempts - failedAttempts}} 次
+    </view>
+
+    <!-- 解锁按钮 -->
+    <button
+      class="btn-unlock"
+      bindtap="onUnlock"
+      disabled="{{password.length < 1}}"
+      loading="{{loading}}"
+    >
+      {{isFirstLaunch ? '创建并进入' : '解  锁'}}
+    </button>
+
+    <!-- 生物识别入口 -->
+    <view class="biometric-entry" wx:if="{{biometricSupported && !isFirstLaunch}}" bindtap="onBiometricUnlock">
+      <view class="fingerprint-icon">🔐</view>
+      <text>使用面容/指纹解锁</text>
+    </view>
+  </view>
+
+  <!-- 底部安全提示 -->
+  <view class="footer-hint">
+    <view class="shield-icon">🛡️</view>
+    <text class="footer-text">
+      {{isFirstLaunch ? '主密码是唯一凭证，遗忘后将无法恢复数据' : '数据在本地加密存储，密码永不上传'}}
+    </text>
+  </view>
+</view>

@@ -1,0 +1,252 @@
+<!-- pages/index/index.wxml - 首页凭证列表 -->
+<view class="index-page">
+
+  <!-- 顶部导航栏 -->
+  <view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-content">
+      <view class="nav-left">
+        <view class="nav-lock-icon">🔒</view>
+        <text class="nav-title">密锁</text>
+      </view>
+      <view class="nav-right">
+        <text class="credential-count">{{filteredList.length}} 项</text>
+        <view class="nav-settings" bindtap="goToSettings">
+          <text>⚙</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <text class="search-icon">🔍</text>
+    <input
+      class="search-input"
+      type="text"
+      placeholder="搜索账号名、网址、标签..."
+      placeholder-class="search-placeholder"
+      value="{{searchQuery}}"
+      bindinput="onSearchInput"
+      bindconfirm="onSearchConfirm"
+      confirm-type="search"
+    />
+    <view class="search-clear" wx:if="{{searchQuery}}" bindtap="clearSearch">
+      <text>✕</text>
+    </view>
+  </view>
+
+  <!-- 分类标签筛选 -->
+  <scroll-view class="category-tabs" scroll-x enhanced show-scrollbar="{{false}}">
+    <view
+      wx:for="{{categories}}"
+      wx:key="key"
+      class="category-tab {{activeCategory === item.key ? 'active' : ''}}"
+      bindtap="switchCategory"
+      data-key="{{item.key}}"
+    >
+      <text class="tab-icon">{{item.icon}}</text>
+      <text class="tab-label">{{item.label}}</text>
+    </view>
+  </scroll-view>
+
+  <!-- 旧数据损坏提示横幅 -->
+  <view class="corrupt-banner" wx:if="{{hasCorruptedData}}" bindtap="goToSettings">
+    <text class="corrupt-icon">⚠️</text>
+    <view class="corrupt-text">
+      <text class="corrupt-title">检测到旧格式数据</text>
+      <text class="corrupt-desc">请前往设置页清空数据后重新录入</text>
+    </view>
+    <text class="corrupt-arrow">›</text>
+  </view>
+
+  <!-- 凭证列表 -->
+  <scroll-view
+    class="credential-list"
+    scroll-y
+    enhanced
+    show-scrollbar="{{false}}"
+    refresher-enabled
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="onRefresh"
+  >
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{filteredList.length === 0 && !loading}}">
+      <view class="empty-icon">📦</view>
+      <view class="empty-title">{{searchQuery ? '未找到匹配的账号' : '还没有存储凭证'}}</view>
+      <view class="empty-desc" wx:if="{{!searchQuery}}">
+        点击右下角 + 按钮添加你的第一个账号
+      </view>
+      <view class="empty-desc" wx:else>
+        试试其他关键词或分类
+      </view>
+    </view>
+
+    <!-- 加载中骨架屏 -->
+    <view class="skeleton-list" wx:if="{{loading}}">
+      <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+        <view class="skeleton-icon"></view>
+        <view class="skeleton-lines">
+          <view class="skeleton-line-short"></view>
+          <view class="skeleton-line-long"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 凭证卡片列表 -->
+    <view class="card-list" wx:if="{{!loading}}">
+      <view
+        wx:for="{{filteredList}}"
+        wx:key="id"
+        class="credential-card-wrapper"
+      >
+        <!-- 分组日期标题（当天日期变更时显示） -->
+        <view class="date-divider" wx:if="{{item.showDate}}">
+          <text>{{item.dateLabel}}</text>
+        </view>
+
+        <credential-card
+          credential="{{item}}"
+          bind:detail="goToDetail"
+          bind:copy="onCopyPassword"
+          bind:edit="goToEdit"
+        />
+      </view>
+    </view>
+
+    <!-- 底部安全区 -->
+    <view class="list-bottom-spacer"></view>
+  </scroll-view>
+
+  <!-- FAB 新增按钮（右下角） -->
+  <view class="fab" bindtap="goToAdd">
+    <text class="fab-icon">+</text>
+  </view>
+
+  <!-- FAB 管理按钮（左下角） -->
+  <view class="fab-manage" bindtap="showCatManager">
+    <text class="fab-manage-icon">⚙</text>
+  </view>
+
+  <!-- ===== 分类管理弹窗 ===== -->
+  <view class="cat-manager-mask" wx:if="{{showCatManager}}" bindtap="hideCatManager"></view>
+  <view class="cat-manager-panel {{showCatManager ? 'cat-manager-show' : ''}}">
+    <view class="cat-manager-header">
+      <text class="cat-manager-title">管理</text>
+      <text class="cat-manager-close" bindtap="hideCatManager">✕</text>
+    </view>
+
+    <scroll-view class="cat-manager-list" scroll-y>
+      <!-- 分类标签管理 section -->
+      <view class="cat-manager-section-title">分类标签</view>
+      <view class="cat-manager-item" wx:for="{{customCategories}}" wx:key="key">
+        <text class="cat-manager-icon">{{item.icon}}</text>
+        <text class="cat-manager-label">{{item.label}}</text>
+        <text class="cat-manager-edit" bindtap="editCatFromHome" data-key="{{item.key}}">✎</text>
+        <text class="cat-manager-del" bindtap="deleteCatFromHome" data-key="{{item.key}}" data-label="{{item.label}}">✕</text>
+      </view>
+      <view class="cat-manager-add" bindtap="addCatFromHome">
+        <text>+ 添加新分类</text>
+      </view>
+      <view class="cat-manager-reset" bindtap="resetCatFromHome">
+        <text>恢复默认分类</text>
+      </view>
+
+      <!-- 安全设置 section -->
+      <view class="cat-manager-section-title">安全设置</view>
+      <view class="cat-manager-item" bindtap="showPwdChangeDialog">
+        <text class="cat-manager-icon">🔐</text>
+        <text class="cat-manager-label">修改主密码</text>
+        <text class="cat-manager-desc">验证后更换主密码并重新加密</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 修改主密码弹窗 -->
+  <view class="cat-manager-mask" wx:if="{{showPwdChange}}" catchtap="dismissPwdChange"></view>
+  <view class="pwd-change-dialog" wx:if="{{showPwdChange}}">
+    <view class="pwd-change-title">修改主密码</view>
+    <view class="pwd-change-desc">输入当前密码验证身份，再设置新密码</view>
+
+    <!-- 当前密码 -->
+    <view class="pwd-field">
+      <view class="pwd-field-label">当前密码</view>
+      <view class="pwd-input-wrap">
+        <input
+          class="pwd-input"
+          type="{{showPwdCurrent ? 'text' : 'password'}}"
+          placeholder="输入当前主密码"
+          password="{{!showPwdCurrent}}"
+          value="{{pwdCurrent}}"
+          bindinput="onPwdCurrentInput"
+        />
+        <view class="pwd-eye" bindtap="togglePwdCurrent">
+          <text>{{showPwdCurrent ? '🙈' : '👁️'}}</text>
+        </view>
+      </view>
+      <text class="pwd-field-err" wx:if="{{pwdCurrentErr}}">{{pwdCurrentErr}}</text>
+    </view>
+
+    <!-- 新密码 -->
+    <view class="pwd-field">
+      <view class="pwd-field-label">新密码</view>
+      <view class="pwd-input-wrap">
+        <input
+          class="pwd-input"
+          type="{{showPwdNew ? 'text' : 'password'}}"
+          placeholder="设置新主密码（≥6位）"
+          password="{{!showPwdNew}}"
+          value="{{pwdNew}}"
+          bindinput="onPwdNewInput"
+        />
+        <view class="pwd-eye" bindtap="togglePwdNew">
+          <text>{{showPwdNew ? '🙈' : '👁️'}}</text>
+        </view>
+      </view>
+      <text class="pwd-field-err" wx:if="{{pwdNewErr}}">{{pwdNewErr}}</text>
+    </view>
+
+    <!-- 确认新密码 -->
+    <view class="pwd-field">
+      <view class="pwd-field-label">确认新密码</view>
+      <view class="pwd-input-wrap">
+        <input
+          class="pwd-input"
+          type="{{showPwdConfirm ? 'text' : 'password'}}"
+          placeholder="再次输入新密码"
+          password="{{!showPwdConfirm}}"
+          value="{{pwdConfirm}}"
+          bindinput="onPwdConfirmInput"
+        />
+        <view class="pwd-eye" bindtap="togglePwdConfirm">
+          <text>{{showPwdConfirm ? '🙈' : '👁️'}}</text>
+        </view>
+      </view>
+      <text class="pwd-field-err" wx:if="{{pwdConfirmErr}}">{{pwdConfirmErr}}</text>
+    </view>
+
+    <view class="pwd-change-actions">
+      <button class="pwd-change-cancel" bindtap="dismissPwdChange">取消</button>
+      <button class="pwd-change-save" bindtap="doChangePassword" loading="{{pwdChanging}}">{{pwdChanging ? '加密中…' : '确认修改'}}</button>
+    </view>
+  </view>
+
+  <!-- 分类编辑子弹窗 -->
+  <view class="cat-manager-mask" wx:if="{{showCatEditModal}}"></view>
+  <view class="cat-edit-dialog" wx:if="{{showCatEditModal}}">
+    <view class="cat-edit-title">{{catEditTitle}}</view>
+    <input class="cat-edit-input" placeholder="分类名称（≤6字）" maxlength="6" value="{{catEditLabel}}" bindinput="onCatEditInput" />
+    <view class="cat-edit-icons">
+      <view
+        wx:for="{{iconOptions}}"
+        wx:key="*this"
+        class="cat-edit-icon {{catEditIcon === item ? 'picked' : ''}}"
+        bindtap="pickCatIcon"
+        data-icon="{{item}}"
+      >{{item}}</view>
+    </view>
+    <view class="cat-edit-actions">
+      <button class="cat-edit-cancel" bindtap="dismissCatEdit">取消</button>
+      <button class="cat-edit-save" bindtap="saveCatEdit">{{catEditAction}}</button>
+    </view>
+  </view>
+</view>

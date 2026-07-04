@@ -1,0 +1,120 @@
+<!-- pages/detail/detail.wxml - 凭证详情页 -->
+<view class="detail-page" wx:if="{{credential}}">
+
+  <!-- 凭证头部 -->
+  <view class="detail-header">
+    <view class="header-icon" style="background: {{categoryColor}}">
+      <text>{{credential.icon || '🔒'}}</text>
+    </view>
+    <view class="header-info">
+      <text class="header-title">{{credential.title || '未命名'}}</text>
+      <view class="header-meta">
+        <text class="category-badge" style="background: {{categoryColor}}20; color: {{categoryColor}}">
+          {{categoryLabel}}
+        </text>
+        <text class="update-time">更新于 {{updateTime}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 账号字段区 -->
+  <view class="detail-card">
+    <!-- 用户名 -->
+    <view class="field-row">
+      <view class="field-label">👤 账号名</view>
+      <view class="field-value-row">
+        <text class="field-value" wx:if="{{showUsername}}">{{credential.username || '-'}}</text>
+        <text class="field-value masked" wx:else>{{maskText(credential.username)}}</text>
+        <view class="field-actions">
+          <view class="action-copy" bindtap="copyField" data-field="username" data-value="{{credential.username}}">
+            <text>📋</text>
+          </view>
+          <view class="action-toggle" bindtap="toggleField" data-field="showUsername">
+            <text>{{showUsername ? '🙈' : '👁'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 密码 -->
+    <view class="field-row {{passwordVisible ? 'highlighted' : ''}}">
+      <view class="field-label">🔑 密码</view>
+      <view class="field-value-row">
+        <text class="field-value" wx:if="{{showPassword && passwordVisible}}">{{credential.password}}</text>
+        <text class="field-value masked" wx:elif="{{!showPassword}}">{{maskText(credential.password)}}</text>
+        <text class="field-value" wx:else>{{credential.password}}</text>
+        <view class="field-actions">
+          <view class="action-copy accent" bindtap="copyField" data-field="password" data-value="{{credential.password}}">
+            <text>📋</text>
+          </view>
+          <view class="action-toggle" bindtap="toggleField" data-field="showPassword">
+            <text>{{showPassword ? '🙈' : '👁'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 剪贴板清空倒计时 -->
+    <view class="clipboard-timer" wx:if="{{clipboardTimer > 0}}">
+      <text>⏱ 剪贴板将在 {{clipboardTimer}} 秒后自动清空</text>
+    </view>
+
+    <!-- 网址 -->
+    <view class="field-row" wx:if="{{credential.url}}">
+      <view class="field-label">🌐 网址</view>
+      <view class="field-value-row">
+        <text class="field-value link" bindtap="openUrl">{{credential.url}}</text>
+        <view class="field-actions">
+          <view class="action-copy" bindtap="copyField" data-field="url" data-value="{{credential.url}}">
+            <text>📋</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 备注 -->
+    <view class="field-row" wx:if="{{credential.notes}}">
+      <view class="field-label">📝 备注</view>
+      <view class="field-value-row">
+        <text class="field-value notes">{{credential.notes}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 元信息 -->
+  <view class="detail-card meta-card">
+    <view class="meta-row">
+      <text class="meta-label">创建时间</text>
+      <text class="meta-value">{{createTime}}</text>
+    </view>
+    <view class="meta-row">
+      <text class="meta-label">最后修改</text>
+      <text class="meta-value">{{updateTime}}</text>
+    </view>
+  </view>
+
+  <!-- 操作区 -->
+  <view class="action-bar">
+    <button class="btn-secondary" bindtap="goToEdit">✏️ 编辑</button>
+    <button class="btn-danger" bindtap="confirmDelete">🗑 删除</button>
+  </view>
+
+  <!-- 删除确认弹窗 -->
+  <view class="modal-overlay" wx:if="{{showDeleteModal}}">
+    <view class="modal-content">
+      <view class="modal-icon">⚠️</view>
+      <view class="modal-title">确认删除</view>
+      <view class="modal-desc">删除「{{credential.title}}」后无法恢复，确定要删除吗？</view>
+      <view class="modal-actions">
+        <button class="modal-btn cancel" bindtap="cancelDelete">取消</button>
+        <button class="modal-btn confirm" bindtap="doDelete">确认删除</button>
+      </view>
+    </view>
+  </view>
+
+</view>
+
+<!-- 加载中 -->
+<view class="loading-page" wx:else>
+  <text>加载中...</text>
+</view>

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "密锁",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "credential-card": "../../components/credential-card/credential-card"
+  }
+}
